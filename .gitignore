@@ -1,0 +1,35 @@
+# Arquivos de configuração sensíveis
+config/config.php
+
+# Uploads de usuários
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+error_log
+
+# Cache
+*.cache
+
+# Arquivos temporários
+*.tmp
+*.temp
+~*
+
+# Node modules (se usar no futuro)
+node_modules/
+
+# Composer (se usar no futuro)
+vendor/

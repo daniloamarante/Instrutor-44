@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteBase /instrutor44/
+
+# Redirect to public folder
+RewriteCond %{REQUEST_URI} !^/instrutor44/public/
+RewriteRule ^(.*)$ public/$1 [L]

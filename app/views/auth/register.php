@@ -7,10 +7,21 @@
         <form action="<?php echo URL_ROOT; ?>/auth/register" method="POST">
             <div class="mb-4">
                 <label class="block text-gray-700 font-semibold mb-2">Tipo de Conta</label>
-                <select name="role" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <select id="role" name="role" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     <option value="aluno" <?php echo $data['role'] == 'aluno' ? 'selected' : ''; ?>>Aluno</option>
                     <option value="instrutor" <?php echo $data['role'] == 'instrutor' ? 'selected' : ''; ?>>Instrutor</option>
                 </select>
+            </div>
+
+            <div id="detranField" class="mb-4" style="display: none;">
+                <label class="block text-gray-700 font-semibold mb-2">Número de Credenciamento DETRAN</label>
+                <input type="text" name="detran_number" value="<?php echo htmlspecialchars($data['detran_number'] ?? ''); ?>" 
+                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 <?php echo !empty($data['detran_number_err']) ? 'border-red-500' : ''; ?>"
+                       placeholder="DETRAN-SP-12345">
+                <?php if(!empty($data['detran_number_err'])): ?>
+                    <span class="text-red-500 text-sm"><?php echo $data['detran_number_err']; ?></span>
+                <?php endif; ?>
+                <p class="text-xs text-gray-500 mt-1">Obrigatório para instrutores (validação via API DETRAN será adicionada futuramente).</p>
             </div>
             
             <div class="mb-4">
@@ -72,5 +83,25 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function() {
+        const roleEl = document.getElementById('role');
+        const detranField = document.getElementById('detranField');
+        const detranInput = detranField ? detranField.querySelector('input[name="detran_number"]') : null;
+
+        function updateDetranVisibility() {
+            const isInstrutor = roleEl && roleEl.value === 'instrutor';
+            if(!detranField || !detranInput) return;
+            detranField.style.display = isInstrutor ? 'block' : 'none';
+            detranInput.required = isInstrutor;
+        }
+
+        if(roleEl) {
+            roleEl.addEventListener('change', updateDetranVisibility);
+            updateDetranVisibility();
+        }
+    })();
+</script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

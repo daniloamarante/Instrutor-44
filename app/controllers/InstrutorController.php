@@ -6,6 +6,7 @@ class InstrutorController extends Controller {
     private $instructorModel;
     private $scheduleModel;
     private $reviewModel;
+    private $instructorDocumentModel;
     
     public function __construct() {
         $this->requireLogin();
@@ -15,6 +16,7 @@ class InstrutorController extends Controller {
         $this->instructorModel = $this->model('Instructor');
         $this->scheduleModel = $this->model('Schedule');
         $this->reviewModel = $this->model('Review');
+        $this->instructorDocumentModel = $this->model('InstructorDocument');
     }
     
     public function dashboard() {
@@ -35,6 +37,7 @@ class InstrutorController extends Controller {
     public function perfil() {
         $user = $this->userModel->findById($_SESSION['user_id']);
         $instructor = $this->instructorModel->findByUserId($_SESSION['user_id']);
+        $documents = $this->instructorDocumentModel->getByInstructor($instructor->id);
         
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $userData = [
@@ -53,6 +56,21 @@ class InstrutorController extends Controller {
                 'experience_years' => intval($_POST['experience_years']),
                 'detran_number' => $_POST['detran_number'] ?? ''
             ];
+
+            if(empty(trim($instructorData['detran_number']))) {
+                $_SESSION['error'] = 'Informe seu número de credenciamento DETRAN.';
+                $this->redirect('instrutor/perfil');
+            }
+
+            if(!$this->isValidDetranNumber($instructorData['detran_number'])) {
+                $_SESSION['error'] = 'Número DETRAN inválido (ex: DETRAN-SP-12345).';
+                $this->redirect('instrutor/perfil');
+            }
+
+            $this->handleDocumentUpload($instructor->id, 'cnh', 'doc_cnh');
+            $this->handleDocumentUpload($instructor->id, 'credencial', 'doc_credencial');
+            $this->handleDocumentUpload($instructor->id, 'lav', 'doc_lav');
+            $this->handleDocumentUpload($instructor->id, 'crlv', 'doc_crlv');
             
             if(isset($_FILES['detran_doc']) && $_FILES['detran_doc']['error'] == 0) {
                 $uploadDir = UPLOAD_PATH . 'detran/';
@@ -79,10 +97,46 @@ class InstrutorController extends Controller {
         $data = [
             'title' => 'Editar Perfil',
             'user' => $user,
-            'instructor' => $instructor
+            'instructor' => $instructor,
+            'documents' => $documents
         ];
         
         $this->view('instrutor/perfil', $data);
+    }
+
+    private function handleDocumentUpload($instructorId, $docType, $fileKey) {
+        if(!isset($_FILES[$fileKey]) || $_FILES[$fileKey]['error'] != 0) {
+            return;
+        }
+
+        $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
+        $ext = strtolower(pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION));
+        if(!in_array($ext, $allowed)) {
+            $_SESSION['error'] = 'Tipo de arquivo inválido. Envie PDF/JPG/PNG.';
+            $this->redirect('instrutor/perfil');
+        }
+
+        $uploadDir = UPLOAD_PATH . 'docs/';
+        if(!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $fileName = $docType . '_' . uniqid() . '_' . basename($_FILES[$fileKey]['name']);
+        $targetFile = $uploadDir . $fileName;
+
+        if(move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetFile)) {
+            $this->instructorDocumentModel->create([
+                'instructor_id' => $instructorId,
+                'doc_type' => $docType,
+                'file_path' => 'docs/' . $fileName,
+                'status' => 'pendente'
+            ]);
+        }
+    }
+
+    private function isValidDetranNumber($detranNumber) {
+        $detranNumber = trim($detranNumber);
+        return (bool)preg_match('/^DETRAN-[A-Z]{2}-\d{3,}$/', strtoupper($detranNumber));
     }
     
     public function agenda() {

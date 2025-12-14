@@ -21,6 +21,7 @@
                     <ul class="space-y-2">
                         <li><a href="<?php echo URL_ROOT; ?>/para-instrutores" class="text-gray-400 hover:text-white">Como Funciona</a></li>
                         <li><a href="<?php echo URL_ROOT; ?>/planos" class="text-gray-400 hover:text-white">Planos e Preços</a></li>
+                        <li><a href="<?php echo URL_ROOT; ?>/auth/login" class="text-gray-400 hover:text-white">Entrar</a></li>
                         <li><a href="<?php echo URL_ROOT; ?>/auth/register?tipo=instrutor" class="text-gray-400 hover:text-white">Cadastrar-se</a></li>
                     </ul>
                 </div>

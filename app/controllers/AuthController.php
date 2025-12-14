@@ -79,12 +79,14 @@ class AuthController extends Controller {
                 'password' => trim($_POST['password']),
                 'confirm_password' => trim($_POST['confirm_password']),
                 'role' => trim($_POST['role']),
+                'detran_number' => trim($_POST['detran_number'] ?? ''),
                 'name_err' => '',
                 'email_err' => '',
                 'phone_err' => '',
                 'password_err' => '',
                 'confirm_password_err' => '',
-                'role_err' => ''
+                'role_err' => '',
+                'detran_number_err' => ''
             ];
             
             if(empty($data['name'])) {
@@ -116,8 +118,16 @@ class AuthController extends Controller {
             if(!in_array($data['role'], ['aluno', 'instrutor'])) {
                 $data['role_err'] = 'Tipo de usuário inválido';
             }
+
+            if($data['role'] == 'instrutor') {
+                if(empty($data['detran_number'])) {
+                    $data['detran_number_err'] = 'Informe seu número de credenciamento DETRAN';
+                } elseif(!$this->isValidDetranNumber($data['detran_number'])) {
+                    $data['detran_number_err'] = 'Número DETRAN inválido (ex: DETRAN-SP-12345)';
+                }
+            }
             
-            if(empty($data['name_err']) && empty($data['email_err']) && empty($data['password_err']) && empty($data['confirm_password_err']) && empty($data['role_err'])) {
+            if(empty($data['name_err']) && empty($data['email_err']) && empty($data['password_err']) && empty($data['confirm_password_err']) && empty($data['role_err']) && empty($data['detran_number_err'])) {
                 $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
                 
                 $userId = $this->userModel->create($data);
@@ -126,7 +136,11 @@ class AuthController extends Controller {
                     if($data['role'] == 'aluno') {
                         $this->studentModel->create(['user_id' => $userId]);
                     } else {
-                        $this->instructorModel->create(['user_id' => $userId, 'status' => 'pendente']);
+                        $this->instructorModel->create([
+                            'user_id' => $userId,
+                            'status' => 'pendente',
+                            'detran_number' => $data['detran_number']
+                        ]);
                     }
                     
                     $_SESSION['user_id'] = $userId;
@@ -149,16 +163,23 @@ class AuthController extends Controller {
                 'password' => '',
                 'confirm_password' => '',
                 'role' => $_GET['tipo'] ?? 'aluno',
+                'detran_number' => '',
                 'name_err' => '',
                 'email_err' => '',
                 'phone_err' => '',
                 'password_err' => '',
                 'confirm_password_err' => '',
-                'role_err' => ''
+                'role_err' => '',
+                'detran_number_err' => ''
             ];
             
             $this->view('auth/register', $data);
         }
+    }
+
+    private function isValidDetranNumber($detranNumber) {
+        $detranNumber = trim($detranNumber);
+        return (bool)preg_match('/^DETRAN-[A-Z]{2}-\d{3,}$/', strtoupper($detranNumber));
     }
     
     public function logout() {

@@ -88,7 +88,7 @@
                     
                     <div class="flex justify-between items-center">
                         <span class="text-2xl font-bold text-blue-600">R$ <?php echo number_format($instructor->price_per_hour, 2, ',', '.'); ?>/h</span>
-                        <a href="<?php echo URL_ROOT; ?>/aluno/instrutor/<?php echo $instructor->id; ?>" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Ver Perfil</a>
+                        <a href="<?php echo URL_ROOT; ?>/home/instrutor/<?php echo $instructor->id; ?>" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Ver Perfil</a>
                     </div>
                 </div>
             </div>

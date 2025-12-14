@@ -8,6 +8,7 @@ class AdminController extends Controller {
     private $scheduleModel;
     private $reviewModel;
     private $planModel;
+    private $instructorDocumentModel;
     
     public function __construct() {
         $this->requireLogin();
@@ -19,6 +20,7 @@ class AdminController extends Controller {
         $this->scheduleModel = $this->model('Schedule');
         $this->reviewModel = $this->model('Review');
         $this->planModel = $this->model('Plan');
+        $this->instructorDocumentModel = $this->model('InstructorDocument');
     }
     
     public function dashboard() {
@@ -54,6 +56,14 @@ class AdminController extends Controller {
     }
     
     public function aprovarInstrutor($id) {
+        $requiredTypes = ['cnh', 'credencial', 'lav', 'crlv'];
+        foreach($requiredTypes as $type) {
+            if(!$this->instructorDocumentModel->hasApprovedDocType($id, $type)) {
+                $_SESSION['error'] = 'Não é possível aprovar: faltam documentos obrigatórios aprovados (CNH, Credencial, LAV, CRLV).';
+                $this->redirect('admin/documentosInstrutor/' . $id);
+            }
+        }
+
         $this->instructorModel->updateStatus($id, 'aprovado');
         $_SESSION['success'] = 'Instrutor aprovado com sucesso!';
         $this->redirect('admin/instrutores?status=pendente');
@@ -63,6 +73,70 @@ class AdminController extends Controller {
         $this->instructorModel->updateStatus($id, 'rejeitado');
         $_SESSION['success'] = 'Instrutor rejeitado.';
         $this->redirect('admin/instrutores?status=pendente');
+    }
+
+    public function documentosInstrutor($id) {
+        $instructor = $this->instructorModel->findById($id);
+        if(!$instructor) {
+            $_SESSION['error'] = 'Instrutor não encontrado.';
+            $this->redirect('admin/instrutores?status=pendente');
+        }
+
+        $documents = $this->instructorDocumentModel->getByInstructor($id);
+
+        $required = [
+            'cnh' => 'CNH',
+            'credencial' => 'Credencial/Crachá de Instrutor',
+            'lav' => 'Licença de Aprendizagem Veicular (LAV)',
+            'crlv' => 'CRLV (Certificado de Registro e Licenciamento do Veículo)'
+        ];
+
+        $labels = $required + [
+            'outro' => 'Outro'
+        ];
+
+        $requiredStatus = [];
+        foreach(array_keys($required) as $type) {
+            $requiredStatus[$type] = $this->instructorDocumentModel->hasApprovedDocType($id, $type);
+        }
+
+        $data = [
+            'title' => 'Documentos do Instrutor',
+            'instructor' => $instructor,
+            'documents' => $documents,
+            'required' => $required,
+            'required_status' => $requiredStatus,
+            'labels' => $labels
+        ];
+
+        $this->view('admin/documentos-instrutor', $data);
+    }
+
+    public function atualizarDocumento($id) {
+        if($_SERVER['REQUEST_METHOD'] != 'POST') {
+            $this->redirect('admin/dashboard');
+        }
+
+        $doc = $this->instructorDocumentModel->findById($id);
+        if(!$doc) {
+            $_SESSION['error'] = 'Documento não encontrado.';
+            $this->redirect('admin/instrutores?status=pendente');
+        }
+
+        $action = $_POST['action'] ?? '';
+        $notes = trim($_POST['admin_notes'] ?? '');
+
+        if($action === 'aprovar') {
+            $this->instructorDocumentModel->updateStatus($id, 'aprovado', $notes ?: null);
+            $_SESSION['success'] = 'Documento aprovado.';
+        } elseif($action === 'rejeitar') {
+            $this->instructorDocumentModel->updateStatus($id, 'rejeitado', $notes ?: null);
+            $_SESSION['success'] = 'Documento rejeitado.';
+        } else {
+            $_SESSION['error'] = 'Ação inválida.';
+        }
+
+        $this->redirect('admin/documentosInstrutor/' . $doc->instructor_id);
     }
     
     public function alunos() {

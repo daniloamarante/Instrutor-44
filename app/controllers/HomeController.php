@@ -3,9 +3,11 @@
 class HomeController extends Controller {
     
     private $instructorModel;
+    private $reviewModel;
     
     public function __construct() {
         $this->instructorModel = $this->model('Instructor');
+        $this->reviewModel = $this->model('Review');
     }
     
     public function index() {
@@ -34,5 +36,23 @@ class HomeController extends Controller {
         ];
         
         $this->view('home/para-instrutores', $data);
+    }
+
+    public function instrutor($id) {
+        $instructor = $this->instructorModel->findById($id);
+        if(!$instructor || ($instructor->status ?? '') !== 'aprovado') {
+            $_SESSION['error'] = 'Instrutor não encontrado.';
+            $this->redirect('');
+        }
+
+        $reviews = $this->reviewModel->getByInstructor($id, 'aprovado');
+
+        $data = [
+            'title' => $instructor->name,
+            'instructor' => $instructor,
+            'reviews' => $reviews
+        ];
+
+        $this->view('home/instrutor', $data);
     }
 }

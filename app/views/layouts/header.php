@@ -43,7 +43,7 @@
                         <a href="<?php echo URL_ROOT; ?>/auth/logout" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Sair</a>
                     <?php else: ?>
                         <a href="<?php echo URL_ROOT; ?>/aluno/buscar" class="text-gray-700 hover:text-blue-600">Buscar Instrutores</a>
-                        <a href="<?php echo URL_ROOT; ?>/para-instrutores" class="text-gray-700 hover:text-blue-600">Sou Instrutor</a>
+                        <a href="<?php echo URL_ROOT; ?>/auth/login" class="text-gray-700 hover:text-blue-600">Sou Instrutor</a>
                         <a href="<?php echo URL_ROOT; ?>/auth/login" class="text-gray-700 hover:text-blue-600">Entrar</a>
                         <a href="<?php echo URL_ROOT; ?>/auth/register" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Cadastrar</a>
                     <?php endif; ?>

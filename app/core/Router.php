@@ -20,8 +20,12 @@ class Router {
         $this->controller = new $this->controller;
         
         if(isset($url[1])) {
-            if(method_exists($this->controller, $url[1])) {
-                $this->method = $url[1];
+            $methodCandidate = $url[1];
+            if(!method_exists($this->controller, $methodCandidate)) {
+                $methodCandidate = $this->toCamelCase($methodCandidate);
+            }
+            if(method_exists($this->controller, $methodCandidate)) {
+                $this->method = $methodCandidate;
                 unset($url[1]);
             }
         }
@@ -29,6 +33,14 @@ class Router {
         $this->params = $url ? array_values($url) : [];
         
         call_user_func_array([$this->controller, $this->method], $this->params);
+    }
+
+    private function toCamelCase($str) {
+        $str = strtolower($str);
+        $str = str_replace(['-', '_'], ' ', $str);
+        $str = ucwords($str);
+        $str = str_replace(' ', '', $str);
+        return lcfirst($str);
     }
     
     public function getUrl() {

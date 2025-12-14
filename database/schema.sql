@@ -77,6 +77,10 @@ CREATE TABLE reviews (
     instructor_id INT NOT NULL,
     schedule_id INT,
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    hygiene_vehicle INT NULL CHECK (hygiene_vehicle >= 1 AND hygiene_vehicle <= 5),
+    service_quality INT NULL CHECK (service_quality >= 1 AND service_quality <= 5),
+    punctuality INT NULL CHECK (punctuality >= 1 AND punctuality <= 5),
+    vehicle_quality INT NULL CHECK (vehicle_quality >= 1 AND vehicle_quality <= 5),
     comment TEXT,
     status ENUM('pendente', 'aprovado', 'rejeitado') DEFAULT 'aprovado',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -143,4 +147,33 @@ CREATE TABLE notifications (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user (user_id),
     INDEX idx_read (is_read)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emergency_alerts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    user_role ENUM('aluno', 'instrutor') NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    user_phone VARCHAR(20),
+    lat DECIMAL(10,8),
+    lng DECIMAL(11,8),
+    status ENUM('aberto', 'encerrado') DEFAULT 'aberto',
+    admin_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_status (status),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emergency_alert_locations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    alert_id INT NOT NULL,
+    lat DECIMAL(10,8) NOT NULL,
+    lng DECIMAL(11,8) NOT NULL,
+    accuracy_meters INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (alert_id) REFERENCES emergency_alerts(id) ON DELETE CASCADE,
+    INDEX idx_alert (alert_id),
+    INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

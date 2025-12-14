@@ -51,6 +51,18 @@
                 </div>
             </div>
         </div>
+
+        <a href="<?php echo URL_ROOT; ?>/admin/emergencias" class="bg-red-600 text-white rounded-lg shadow-lg p-6 hover:bg-red-700 transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-red-100 mb-1">Emergências Abertas</p>
+                    <p class="text-3xl font-bold"><?php echo (int)($data['open_emergencies'] ?? 0); ?></p>
+                </div>
+                <div class="bg-red-500/30 w-16 h-16 rounded-full flex items-center justify-center">
+                    <i class="fas fa-triangle-exclamation text-white text-2xl"></i>
+                </div>
+            </div>
+        </a>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">

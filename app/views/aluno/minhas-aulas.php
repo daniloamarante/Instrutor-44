@@ -69,7 +69,7 @@
                         <?php endif; ?>
                         
                         <?php if($schedule->status == 'concluido'): ?>
-                        <a href="<?php echo URL_ROOT; ?>/home/instrutor/<?php echo $schedule->instructor_id; ?>" 
+                        <a href="<?php echo URL_ROOT; ?>/aluno/avaliar/<?php echo $schedule->instructor_id; ?>" 
                            class="block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-center">
                             Avaliar Instrutor
                         </a>

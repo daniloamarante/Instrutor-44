@@ -51,5 +51,7 @@
             });
         }, 5000);
     </script>
+
+    <?php require_once '../app/views/layouts/mobile-bottom-nav.php'; ?>
 </body>
 </html>

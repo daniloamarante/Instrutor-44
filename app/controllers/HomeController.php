@@ -47,10 +47,41 @@ class HomeController extends Controller {
 
         $reviews = $this->reviewModel->getByInstructor($id, 'aprovado');
 
+        $locationText = !empty($instructor->location_address) ? (' em ' . $instructor->location_address) : '';
+        $metaDescription = 'Aulas práticas de direção com ' . $instructor->name . $locationText . '. Nota ' . number_format((float)$instructor->rating, 1) . '/5 com ' . (int)$instructor->total_reviews . ' avaliações. Agende sua aula agora.';
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Person',
+            'name' => $instructor->name,
+            'url' => rtrim(URL_ROOT, '/') . '/home/instrutor/' . $instructor->id,
+        ];
+
+        if(!empty($instructor->phone)) {
+            $schema['telephone'] = $instructor->phone;
+        }
+
+        if(!empty($instructor->location_address)) {
+            $schema['address'] = $instructor->location_address;
+        }
+
+        if(isset($instructor->rating) && isset($instructor->total_reviews)) {
+            $schema['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => (float)$instructor->rating,
+                'reviewCount' => (int)$instructor->total_reviews,
+                'bestRating' => 5,
+                'worstRating' => 1
+            ];
+        }
+
         $data = [
             'title' => $instructor->name,
             'instructor' => $instructor,
-            'reviews' => $reviews
+            'reviews' => $reviews,
+            'meta_description' => $metaDescription,
+            'og_type' => 'profile',
+            'schema_jsonld' => $schema
         ];
 
         $this->view('home/instrutor', $data);

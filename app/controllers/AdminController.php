@@ -9,6 +9,8 @@ class AdminController extends Controller {
     private $reviewModel;
     private $planModel;
     private $instructorDocumentModel;
+    private $emergencyAlertModel;
+    private $emergencyAlertLocationModel;
     
     public function __construct() {
         $this->requireLogin();
@@ -21,6 +23,8 @@ class AdminController extends Controller {
         $this->reviewModel = $this->model('Review');
         $this->planModel = $this->model('Plan');
         $this->instructorDocumentModel = $this->model('InstructorDocument');
+        $this->emergencyAlertModel = $this->model('EmergencyAlert');
+        $this->emergencyAlertLocationModel = $this->model('EmergencyAlertLocation');
     }
     
     public function dashboard() {
@@ -31,10 +35,68 @@ class AdminController extends Controller {
             'total_students' => count($this->studentModel->getAll()),
             'total_schedules' => count($this->scheduleModel->getAll()),
             'recent_schedules' => $this->scheduleModel->getAll(10),
-            'pending_reviews' => $this->reviewModel->getAll('pendente')
+            'pending_reviews' => $this->reviewModel->getAll('pendente'),
+            'open_emergencies' => $this->emergencyAlertModel->countOpen()
         ];
         
         $this->view('admin/dashboard', $data);
+    }
+
+    public function emergencias() {
+        $data = [
+            'title' => 'Emergências',
+            'alerts' => $this->emergencyAlertModel->getOpen(50)
+        ];
+
+        $this->view('admin/emergencias', $data);
+    }
+
+    public function encerrarEmergencia($id) {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('admin/emergencias');
+        }
+
+        $this->emergencyAlertModel->close($id);
+        $_SESSION['success'] = 'Emergência encerrada.';
+        $this->redirect('admin/emergencias');
+    }
+
+    public function emergenciasCount() {
+        $this->json([
+            'count' => $this->emergencyAlertModel->countOpen()
+        ]);
+    }
+
+    public function emergenciasOpen() {
+        $alerts = $this->emergencyAlertModel->getOpen(50);
+        $items = [];
+
+        foreach($alerts as $a) {
+            $latest = null;
+            if(!empty($a->lat) && !empty($a->lng)) {
+                $latest = [
+                    'lat' => (float)$a->lat,
+                    'lng' => (float)$a->lng,
+                    'updated_at' => $a->updated_at
+                ];
+            }
+
+            $items[] = [
+                'id' => (int)$a->id,
+                'user_name' => $a->user_name,
+                'user_role' => $a->user_role,
+                'user_phone' => $a->user_phone,
+                'lat' => $a->lat,
+                'lng' => $a->lng,
+                'created_at' => $a->created_at,
+                'updated_at' => $a->updated_at,
+                'latest' => $latest
+            ];
+        }
+
+        $this->json([
+            'items' => $items
+        ]);
     }
     
     public function instrutores() {

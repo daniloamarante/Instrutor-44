@@ -1,0 +1,10 @@
+{
+  "name": "Encontre Instrutor",
+  "short_name": "Instrutor",
+  "start_url": "http://localhost/instrutor44/",
+  "scope": "http://localhost/instrutor44/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": []
+}

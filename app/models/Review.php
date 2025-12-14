@@ -3,13 +3,17 @@
 class Review extends Model {
     
     public function create($data) {
-        $this->db->query('INSERT INTO reviews (student_id, instructor_id, schedule_id, rating, comment, status) 
-                         VALUES (:student_id, :instructor_id, :schedule_id, :rating, :comment, :status)');
+        $this->db->query('INSERT INTO reviews (student_id, instructor_id, schedule_id, rating, hygiene_vehicle, service_quality, punctuality, vehicle_quality, comment, status) 
+                         VALUES (:student_id, :instructor_id, :schedule_id, :rating, :hygiene_vehicle, :service_quality, :punctuality, :vehicle_quality, :comment, :status)');
         
         $this->db->bind(':student_id', $data['student_id']);
         $this->db->bind(':instructor_id', $data['instructor_id']);
         $this->db->bind(':schedule_id', $data['schedule_id'] ?? null);
         $this->db->bind(':rating', $data['rating']);
+        $this->db->bind(':hygiene_vehicle', $data['hygiene_vehicle'] ?? null);
+        $this->db->bind(':service_quality', $data['service_quality'] ?? null);
+        $this->db->bind(':punctuality', $data['punctuality'] ?? null);
+        $this->db->bind(':vehicle_quality', $data['vehicle_quality'] ?? null);
         $this->db->bind(':comment', $data['comment'] ?? null);
         $this->db->bind(':status', $data['status'] ?? 'aprovado');
         

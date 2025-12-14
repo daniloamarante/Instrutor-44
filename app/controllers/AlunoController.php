@@ -127,25 +127,63 @@ class AlunoController extends Controller {
     }
     
     public function avaliar($instructor_id) {
+        $student = $this->studentModel->findByUserId($_SESSION['user_id']);
+
+        if(!$this->reviewModel->canReview($student->id, $instructor_id)) {
+            $_SESSION['error'] = 'Você só pode avaliar após concluir uma aula com este instrutor.';
+            $this->redirect('aluno/minhas-aulas');
+        }
+
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $student = $this->studentModel->findByUserId($_SESSION['user_id']);
-            
+            $hygieneVehicle = isset($_POST['hygiene_vehicle']) ? intval($_POST['hygiene_vehicle']) : null;
+            $serviceQuality = isset($_POST['service_quality']) ? intval($_POST['service_quality']) : null;
+            $punctuality = isset($_POST['punctuality']) ? intval($_POST['punctuality']) : null;
+            $vehicleQuality = isset($_POST['vehicle_quality']) ? intval($_POST['vehicle_quality']) : null;
+
+            $criteria = array_filter([$hygieneVehicle, $serviceQuality, $punctuality, $vehicleQuality], function($v) {
+                return $v !== null;
+            });
+
+            $rating = 0;
+            if(!empty($criteria)) {
+                $rating = (int)round(array_sum($criteria) / count($criteria));
+            } else {
+                $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
+            }
+
             $reviewData = [
                 'student_id' => $student->id,
                 'instructor_id' => $instructor_id,
-                'rating' => intval($_POST['rating']),
+                'rating' => $rating,
+                'hygiene_vehicle' => $hygieneVehicle,
+                'service_quality' => $serviceQuality,
+                'punctuality' => $punctuality,
+                'vehicle_quality' => $vehicleQuality,
                 'comment' => $_POST['comment'] ?? ''
             ];
-            
+
             if($this->reviewModel->create($reviewData)) {
                 $this->instructorModel->updateRating($instructor_id);
                 $_SESSION['success'] = 'Avaliação enviada com sucesso!';
+                $this->redirect('aluno/instrutor/' . $instructor_id);
             } else {
                 $_SESSION['error'] = 'Erro ao enviar avaliação.';
+                $this->redirect('aluno/avaliar/' . $instructor_id);
             }
-            
-            $this->redirect('aluno/instrutor/' . $instructor_id);
         }
+
+        $instructor = $this->instructorModel->findById($instructor_id);
+        if(!$instructor) {
+            $_SESSION['error'] = 'Instrutor não encontrado.';
+            $this->redirect('aluno/minhas-aulas');
+        }
+
+        $data = [
+            'title' => 'Avaliar Instrutor',
+            'instructor' => $instructor
+        ];
+
+        $this->view('aluno/avaliar', $data);
     }
     
     public function perfil() {

@@ -41,6 +41,42 @@
                             </div>
                             <span class="text-sm text-gray-500"><?php echo date('d/m/Y', strtotime($review->created_at)); ?></span>
                         </div>
+                        <?php if(!empty($review->hygiene_vehicle) || !empty($review->service_quality) || !empty($review->punctuality) || !empty($review->vehicle_quality)): ?>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+                            <div>
+                                <span class="font-semibold">Higiene do veículo:</span>
+                                <span class="ml-2 text-yellow-500">
+                                    <?php for($i = 0; $i < 5; $i++): ?>
+                                        <i class="fas fa-star<?php echo $i < ($review->hygiene_vehicle ?? 0) ? '' : '-o'; ?>"></i>
+                                    <?php endfor; ?>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Atendimento:</span>
+                                <span class="ml-2 text-yellow-500">
+                                    <?php for($i = 0; $i < 5; $i++): ?>
+                                        <i class="fas fa-star<?php echo $i < ($review->service_quality ?? 0) ? '' : '-o'; ?>"></i>
+                                    <?php endfor; ?>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Pontualidade:</span>
+                                <span class="ml-2 text-yellow-500">
+                                    <?php for($i = 0; $i < 5; $i++): ?>
+                                        <i class="fas fa-star<?php echo $i < ($review->punctuality ?? 0) ? '' : '-o'; ?>"></i>
+                                    <?php endfor; ?>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Qualidade do veículo:</span>
+                                <span class="ml-2 text-yellow-500">
+                                    <?php for($i = 0; $i < 5; $i++): ?>
+                                        <i class="fas fa-star<?php echo $i < ($review->vehicle_quality ?? 0) ? '' : '-o'; ?>"></i>
+                                    <?php endfor; ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                         <?php if($review->comment): ?>
                         <p class="text-gray-700 mt-2"><?php echo nl2br(htmlspecialchars($review->comment)); ?></p>
                         <?php endif; ?>

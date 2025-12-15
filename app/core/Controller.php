@@ -30,8 +30,28 @@ class Controller {
     }
     
     public function requireRole($role) {
-        if(!$this->isLoggedIn() || $_SESSION['user_role'] !== $role) {
-            $this->redirect('');
+        if(!$this->isLoggedIn()) {
+            $this->redirect('auth/login');
+        }
+
+        if(($_SESSION['user_role'] ?? '') !== $role) {
+            $_SESSION['error'] = 'Você não tem acesso a esse perfil.';
+
+            $currentRole = $_SESSION['user_role'] ?? '';
+            switch($currentRole) {
+                case 'aluno':
+                    $this->redirect('aluno/dashboard');
+                    break;
+                case 'instrutor':
+                    $this->redirect('instrutor/dashboard');
+                    break;
+                case 'admin':
+                    $this->redirect('admin/dashboard');
+                    break;
+                default:
+                    $this->redirect('');
+                    break;
+            }
         }
     }
     

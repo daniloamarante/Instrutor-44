@@ -9,7 +9,7 @@
                 <a href="<?php echo URL_ROOT; ?>/aluno/buscar" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
                     <i class="fas fa-search mr-2"></i>Buscar Instrutores
                 </a>
-                <a href="<?php echo URL_ROOT; ?>/auth/login" class="bg-green-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-600 transition">
+                <a href="<?php echo URL_ROOT; ?>/instrutor/dashboard" class="bg-green-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-600 transition">
                     <i class="fas fa-user-tie mr-2"></i>Sou Instrutor
                 </a>
             </div>

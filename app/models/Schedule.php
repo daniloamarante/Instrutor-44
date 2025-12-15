@@ -36,7 +36,7 @@ class Schedule extends Model {
     }
     
     public function getByInstructor($instructor_id, $status = null) {
-        $sql = 'SELECT s.*, st.id as student_id, u.name as student_name, u.phone as student_phone
+        $sql = 'SELECT s.*, st.id as student_id, u.name as student_name, u.phone as student_phone, u.email as student_email
                 FROM schedules s
                 JOIN students st ON s.student_id = st.id
                 JOIN users u ON st.user_id = u.id
@@ -88,6 +88,44 @@ class Schedule extends Model {
         $this->db->bind(':status', $status);
         return $this->db->execute();
     }
+
+    public function requestReschedule($id, $studentId, $newDateTime) {
+        $this->db->query('UPDATE schedules
+                         SET reschedule_requested_date_time = :new_date_time,
+                             reschedule_status = "pendente"
+                         WHERE id = :id AND student_id = :student_id');
+        $this->db->bind(':id', $id);
+        $this->db->bind(':student_id', $studentId);
+        $this->db->bind(':new_date_time', $newDateTime);
+        return $this->db->execute();
+    }
+
+    public function approveReschedule($id, $instructorId) {
+        $this->db->query('UPDATE schedules
+                         SET date_time = reschedule_requested_date_time,
+                             reschedule_requested_date_time = NULL,
+                             reschedule_status = "nenhum"
+                         WHERE id = :id AND instructor_id = :instructor_id AND reschedule_status = "pendente"');
+        $this->db->bind(':id', $id);
+        $this->db->bind(':instructor_id', $instructorId);
+        return $this->db->execute();
+    }
+
+    public function rejectReschedule($id, $instructorId) {
+        $this->db->query('UPDATE schedules
+                         SET reschedule_status = "rejeitado"
+                         WHERE id = :id AND instructor_id = :instructor_id AND reschedule_status = "pendente"');
+        $this->db->bind(':id', $id);
+        $this->db->bind(':instructor_id', $instructorId);
+        return $this->db->execute();
+    }
+
+    public function setCancellationFee($id, $fee) {
+        $this->db->query('UPDATE schedules SET cancellation_fee = :fee WHERE id = :id');
+        $this->db->bind(':id', $id);
+        $this->db->bind(':fee', $fee);
+        return $this->db->execute();
+    }
     
     public function getAll($limit = null) {
         $sql = 'SELECT s.*, 
@@ -114,7 +152,7 @@ class Schedule extends Model {
     }
     
     public function getUpcoming($instructor_id) {
-        $this->db->query('SELECT s.*, st.id as student_id, u.name as student_name, u.phone as student_phone
+        $this->db->query('SELECT s.*, st.id as student_id, u.name as student_name, u.phone as student_phone, u.email as student_email
                          FROM schedules s
                          JOIN students st ON s.student_id = st.id
                          JOIN users u ON st.user_id = u.id

@@ -32,6 +32,15 @@
                         <span class="font-semibold text-green-600"><?php echo $student['completed_classes']; ?></span>
                     </div>
                 </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <a href="tel:<?php echo preg_replace('/\D+/', '', (string)($student['phone'] ?? '')); ?>" class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 text-center text-sm">
+                        <i class="fas fa-phone mr-2"></i>Telefone
+                    </a>
+                    <a href="mailto:<?php echo htmlspecialchars($student['email'] ?? ''); ?>" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-center text-sm">
+                        <i class="fas fa-envelope mr-2"></i>E-mail
+                    </a>
+                </div>
             </div>
             <?php endforeach; ?>
         </div>

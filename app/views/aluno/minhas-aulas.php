@@ -59,6 +59,23 @@
                             ?>">
                             <?php echo ucfirst($schedule->status); ?>
                         </span>
+
+                        <?php if(!empty($schedule->cancellation_fee) && floatval($schedule->cancellation_fee) > 0): ?>
+                            <div class="mb-4 text-sm font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                Taxa de cancelamento: R$ <?php echo number_format($schedule->cancellation_fee, 2, ',', '.'); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(($schedule->reschedule_status ?? 'nenhum') === 'pendente'): ?>
+                            <div class="mb-4 text-sm font-semibold text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                                Reagendamento solicitado para:
+                                <?php echo date('d/m/Y H:i', strtotime($schedule->reschedule_requested_date_time)); ?>
+                            </div>
+                        <?php elseif(($schedule->reschedule_status ?? 'nenhum') === 'rejeitado'): ?>
+                            <div class="mb-4 text-sm font-semibold text-red-800 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                Reagendamento rejeitado pelo instrutor.
+                            </div>
+                        <?php endif; ?>
                         
                         <?php if($schedule->status == 'pendente' || $schedule->status == 'confirmado'): ?>
                         <a href="<?php echo URL_ROOT; ?>/aluno/cancelarAula/<?php echo $schedule->id; ?>" 
@@ -66,6 +83,15 @@
                            onclick="return confirm('Tem certeza que deseja cancelar esta aula?')">
                             Cancelar Aula
                         </a>
+
+                        <?php if(($schedule->reschedule_status ?? 'nenhum') !== 'pendente'): ?>
+                        <form class="mt-2" method="POST" action="<?php echo URL_ROOT; ?>/aluno/solicitarReagendamento/<?php echo $schedule->id; ?>">
+                            <input type="datetime-local" name="new_date_time" class="w-full px-3 py-2 border rounded-lg text-sm mb-2" required>
+                            <button type="submit" class="w-full bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 text-center text-sm">
+                                Solicitar Reagendamento
+                            </button>
+                        </form>
+                        <?php endif; ?>
                         <?php endif; ?>
                         
                         <?php if($schedule->status == 'concluido'): ?>

@@ -33,6 +33,12 @@ database/schema.sql
 database/seed.sql
 ```
 
+Se você já possui um banco criado anteriormente, execute também:
+
+```bash
+database/update_2025_schedule_reschedule_and_fees.sql
+```
+
 ### 3. Configure as credenciais
 
 Edite o arquivo `config/config.php` se necessário:
@@ -92,15 +98,20 @@ instrutor44/
 ### Para Alunos
 - Busca geolocalizada de instrutores
 - Filtros por localização, preço e avaliações
+- Busca por CEP (sem API)
 - Agendamento de aulas
+- Solicitação de reagendamento (sujeito à aprovação do instrutor)
 - Sistema de avaliações
 - Histórico de aulas
+- Taxa de cancelamento com menos de 24h (R$ 50,00)
 
 ### Para Instrutores
 - Cadastro com documentos DETRAN
 - Gestão de perfil e preços
 - Gerenciamento de agenda
 - Confirmação/rejeição de agendamentos
+- Aprovar/rejeitar solicitações de reagendamento
+- Contato rápido com alunos (telefone/e-mail)
 - Dashboard com estatísticas
 
 ### Para Administradores

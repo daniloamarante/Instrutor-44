@@ -144,6 +144,19 @@
 ✅ Notificações de sucesso/erro
 ✅ Proteção de rotas por role
 
+✅ Busca de instrutores por CEP (sem API)
+- Campo CEP na busca do aluno (filtra por CEP no endereço do instrutor)
+
+✅ Reagendamento de aula com aprovação do instrutor
+- Aluno solicita nova data/hora
+- Instrutor aprova ou rejeita
+
+✅ Taxa de cancelamento (<24h)
+- Cancelamentos feitos com menos de 24h geram taxa fixa de R$ 50,00
+
+✅ Contato rápido na aba "Meus Alunos" (Instrutor)
+- Botões para ligar (tel:) e enviar e-mail (mailto:)
+
 ✅ Mobile-first (UX)
 - Bottom navigation (mobile) para aluno/instrutor
 - Botão flutuante SOS (mobile) com confirmação por double-tap
@@ -180,6 +193,7 @@
 - `/aluno/minhas-aulas` - Minhas aulas
 - `/aluno/perfil` - Meu perfil
 - `/aluno/avaliar/{instructor_id}` - Avaliar instrutor
+- `/aluno/solicitarReagendamento/{schedule_id}` - Solicitar reagendamento de aula
 
 ### Instrutor
 - `/instrutor/dashboard` - Dashboard
@@ -187,6 +201,8 @@
 - `/instrutor/agenda` - Minha agenda
 - `/instrutor/alunos` - Meus alunos
 - `/instrutor/avaliacoes` - Minhas avaliações
+- `/instrutor/aprovarReagendamento/{schedule_id}` - Aprovar reagendamento
+- `/instrutor/rejeitarReagendamento/{schedule_id}` - Rejeitar reagendamento
 
 ### Admin
 - `/admin/dashboard` - Dashboard

@@ -185,6 +185,32 @@ class InstrutorController extends Controller {
         
         $this->redirect('instrutor/agenda');
     }
+
+    public function aprovarReagendamento($id) {
+        $schedule = $this->scheduleModel->findById($id);
+        $instructor = $this->instructorModel->findByUserId($_SESSION['user_id']);
+
+        if($schedule && $schedule->instructor_id == $instructor->id) {
+            if($this->scheduleModel->approveReschedule($id, $instructor->id)) {
+                $_SESSION['success'] = 'Reagendamento aprovado com sucesso!';
+            }
+        }
+
+        $this->redirect('instrutor/agenda');
+    }
+
+    public function rejeitarReagendamento($id) {
+        $schedule = $this->scheduleModel->findById($id);
+        $instructor = $this->instructorModel->findByUserId($_SESSION['user_id']);
+
+        if($schedule && $schedule->instructor_id == $instructor->id) {
+            if($this->scheduleModel->rejectReschedule($id, $instructor->id)) {
+                $_SESSION['success'] = 'Reagendamento rejeitado.';
+            }
+        }
+
+        $this->redirect('instrutor/agenda');
+    }
     
     public function alunos() {
         $instructor = $this->instructorModel->findByUserId($_SESSION['user_id']);
@@ -197,6 +223,7 @@ class InstrutorController extends Controller {
                     'id' => $schedule->student_id,
                     'name' => $schedule->student_name,
                     'phone' => $schedule->student_phone,
+                    'email' => $schedule->student_email,
                     'total_classes' => 0,
                     'completed_classes' => 0
                 ];

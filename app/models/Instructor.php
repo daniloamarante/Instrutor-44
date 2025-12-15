@@ -50,6 +50,10 @@ class Instructor extends Model {
                 FROM instructors i 
                 JOIN users u ON i.user_id = u.id 
                 WHERE i.status = "aprovado"';
+
+        if(isset($filters['cep'])) {
+            $sql .= ' AND (REPLACE(REPLACE(i.location_address, "-", ""), " ", "") LIKE :cep_like)';
+        }
         
         if(isset($filters['max_price'])) {
             $sql .= ' AND i.price_per_hour <= :max_price';
@@ -76,6 +80,10 @@ class Instructor extends Model {
         
         $this->db->bind(':lat', $lat);
         $this->db->bind(':lng', $lng);
+
+        if(isset($filters['cep'])) {
+            $this->db->bind(':cep_like', '%' . $filters['cep'] . '%');
+        }
         
         if(isset($filters['max_price'])) {
             $this->db->bind(':max_price', $filters['max_price']);

@@ -7,6 +7,11 @@
         <form method="GET" action="<?php echo URL_ROOT; ?>/aluno/buscar" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
+                    <label class="block text-gray-700 font-semibold mb-2">CEP</label>
+                    <input type="text" name="cep" value="<?php echo htmlspecialchars($data['filters']['cep'] ?? ''); ?>" 
+                           class="w-full px-4 py-2 border rounded-lg" placeholder="00000-000">
+                </div>
+                <div>
                     <label class="block text-gray-700 font-semibold mb-2">Latitude</label>
                     <input type="text" name="lat" value="<?php echo $data['filters']['lat'] ?? ''; ?>" 
                            class="w-full px-4 py-2 border rounded-lg" placeholder="-23.550520">
@@ -27,7 +32,9 @@
                         <option value="100">100 km</option>
                     </select>
                 </div>
-                
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2">Preço Máximo</label>
                     <input type="number" name="max_price" value="<?php echo $data['filters']['max_price'] ?? ''; ?>" 

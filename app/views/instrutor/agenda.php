@@ -56,6 +56,23 @@
                             ?>">
                             <?php echo ucfirst($schedule->status); ?>
                         </span>
+
+                        <?php if(($schedule->reschedule_status ?? 'nenhum') === 'pendente'): ?>
+                            <div class="mb-4 text-sm font-semibold text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                                Reagendamento solicitado para:
+                                <?php echo date('d/m/Y H:i', strtotime($schedule->reschedule_requested_date_time)); ?>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <a href="<?php echo URL_ROOT; ?>/instrutor/aprovarReagendamento/<?php echo $schedule->id; ?>" 
+                                   class="block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-center">
+                                    <i class="fas fa-check mr-2"></i>Aprovar Reagendamento
+                                </a>
+                                <a href="<?php echo URL_ROOT; ?>/instrutor/rejeitarReagendamento/<?php echo $schedule->id; ?>" 
+                                   class="block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-center">
+                                    <i class="fas fa-times mr-2"></i>Rejeitar Reagendamento
+                                </a>
+                            </div>
+                        <?php endif; ?>
                         
                         <?php if($schedule->status == 'pendente'): ?>
                         <div class="space-y-2">

@@ -34,6 +34,13 @@ class AlunoController extends Controller {
     
     public function buscar() {
         $filters = [];
+
+        if(isset($_GET['cep'])) {
+            $cepDigits = preg_replace('/\D+/', '', (string)$_GET['cep']);
+            if(strlen($cepDigits) === 8) {
+                $filters['cep'] = $cepDigits;
+            }
+        }
         
         if(isset($_GET['lat']) && isset($_GET['lng'])) {
             $filters['lat'] = floatval($_GET['lat']);
@@ -119,10 +126,64 @@ class AlunoController extends Controller {
         $student = $this->studentModel->findByUserId($_SESSION['user_id']);
         
         if($schedule && $schedule->student_id == $student->id) {
+            if(in_array($schedule->status, ['cancelado', 'concluido'], true)) {
+                $_SESSION['error'] = 'Não é possível cancelar esta aula.';
+                $this->redirect('aluno/minhas-aulas');
+            }
+
+            $fee = 0.00;
+            $startTs = strtotime($schedule->date_time);
+            if($startTs) {
+                $hoursDiff = ($startTs - time()) / 3600;
+                if($hoursDiff < 24) {
+                    $fee = 50.00;
+                }
+            }
+
             $this->scheduleModel->updateStatus($id, 'cancelado');
-            $_SESSION['success'] = 'Aula cancelada com sucesso.';
+            if($fee > 0) {
+                $this->scheduleModel->setCancellationFee($id, $fee);
+                $_SESSION['success'] = 'Aula cancelada com sucesso. Taxa de cancelamento aplicada: R$ 50,00 (cancelamento com menos de 24h).';
+            } else {
+                $_SESSION['success'] = 'Aula cancelada com sucesso.';
+            }
         }
         
+        $this->redirect('aluno/minhas-aulas');
+    }
+
+    public function solicitarReagendamento($id) {
+        $schedule = $this->scheduleModel->findById($id);
+        $student = $this->studentModel->findByUserId($_SESSION['user_id']);
+
+        if(!$schedule || $schedule->student_id != $student->id) {
+            $this->redirect('aluno/minhas-aulas');
+        }
+
+        if(!in_array($schedule->status, ['pendente', 'confirmado'], true)) {
+            $_SESSION['error'] = 'Não é possível reagendar esta aula.';
+            $this->redirect('aluno/minhas-aulas');
+        }
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $newDateTime = $_POST['new_date_time'] ?? '';
+            if(empty($newDateTime)) {
+                $_SESSION['error'] = 'Informe a nova data e hora.';
+                $this->redirect('aluno/minhas-aulas');
+            }
+
+            $newDateTime = str_replace('T', ' ', trim($newDateTime));
+            if(strlen($newDateTime) === 16) {
+                $newDateTime .= ':00';
+            }
+
+            if($this->scheduleModel->requestReschedule($id, $student->id, $newDateTime)) {
+                $_SESSION['success'] = 'Solicitação de reagendamento enviada. Aguarde a aprovação do instrutor.';
+            } else {
+                $_SESSION['error'] = 'Não foi possível solicitar o reagendamento.';
+            }
+        }
+
         $this->redirect('aluno/minhas-aulas');
     }
     
